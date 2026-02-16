@@ -1,0 +1,6 @@
+interface:
+  display_name: "Oracle"
+  short_description: "Generate a prompt.md + context.zip to ask an external expert assistant for a second opinion."
+  default_prompt: "Use the oracle skill to create an ask-an-expert bundle for: <describe the task>. Write prompt.md + context.zip to .agents/oracle/<slug>/."
+policy:
+  allow_implicit_invocation: false

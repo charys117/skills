@@ -1,0 +1,71 @@
+# Oracle bundle default excludes (glob patterns, POSIX style)
+# Comments and blank lines are ignored.
+
+# VCS
+**/.git/**
+**/.hg/**
+**/.svn/**
+
+# Dependency & virtualenv folders
+**/node_modules/**
+**/.venv/**
+**/venv/**
+**/__pycache__/**
+**/.pytest_cache/**
+**/.mypy_cache/**
+**/.ruff_cache/**
+**/.cache/**
+**/.tox/**
+**/.nox/**
+**/.idea/**
+**/.vscode/**
+
+# Build outputs
+**/dist/**
+**/build/**
+**/.next/**
+**/.nuxt/**
+**/.output/**
+**/out/**
+**/target/**
+**/.gradle/**
+**/.turbo/**
+
+# Logs & dumps
+**/*.log
+**/*.dump
+**/*.dmp
+**/*.trace
+
+# Archives (usually not useful as LLM context)
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.tgz
+**/*.7z
+**/*.rar
+
+# OS junk
+**/.DS_Store
+**/Thumbs.db
+
+# Prior Oracle bundles & skills (avoid recursion)
+**/.agents/oracle/**
+**/.agents/skills/**
+**/.codex/skills/**
+**/.claude/skills/**
+**/.gemini/skills/**
+**/.opencode/skills/**
+
+# Secrets / credentials (best effort — still review manually!)
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.kdbx
+**/id_rsa
+**/id_dsa
+**/*credentials*
+**/*secret*
