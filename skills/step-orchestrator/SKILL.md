@@ -34,12 +34,14 @@ Coordinate one requested step at a time from a step table.
 - For each step:
   1. Mark the step `In Progress`.
   2. Spawn implementer `A1` to change code for only that step. Instruct it not to commit, tag, or update the step table.
-  3. Mark the step `In Review`.
-  4. Spawn reviewer `B1` to review only that step. Keep reviewer read-only.
-  5. If reviewer `B1` rejects the work, append `B1` review history, set the step back to `In Progress`, and spawn implementer `A2` with the review notes.
-  6. Continue `A<n> -> B<n>` rounds until the reviewer approves or a hard blocker prevents safe progress.
-  7. After approval, stage only the approved step's changes and commit `step {id}: {step_title}`.
-  8. Mark the step `Done` and write back the approval summary plus commit SHA and message.
+  3. Wait for `A1` to finish and return a complete handoff for that step before doing any implementation work on the same step yourself.
+  4. Mark the step `In Review`.
+  5. Spawn reviewer `B1` to review only that step. Keep reviewer read-only.
+  6. Wait for `B1` to return a final review result before doing any review work on the same step yourself.
+  7. If reviewer `B1` rejects the work, append `B1` review history, set the step back to `In Progress`, and spawn implementer `A2` with the review notes.
+  8. Continue `A<n> -> B<n>` rounds until the reviewer approves or a hard blocker prevents safe progress.
+  9. After approval, stage only the approved step's changes and commit `step {id}: {step_title}`.
+  10. Mark the step `Done` and write back the approval summary plus commit SHA and message.
 - Continue to the next requested step only after the current step is approved, committed, and written back.
 
 ## Keep side effects centralized
@@ -47,6 +49,16 @@ Coordinate one requested step at a time from a step table.
 - Let implementer agents patch code and run the tests needed for that step.
 - Let reviewer agents inspect and report findings, but never patch code.
 - Let only the coordinator commit, update the step table, and decide whether a blocker is hard.
+- While an implementer or reviewer round is active, let the coordinator orchestrate and wait. Do not let it silently absorb the same round just because the subagent is slow.
+
+## Wait deliberately for spawned agents
+
+- Treat each spawned `A<n>` or `B<n>` as the owner of that round until it finishes, reports a blocker, or is explicitly replaced.
+- Use long waits and sparse polling. A single timeout or slow response is not permission for the coordinator to take over the round.
+- If a subagent is slow, ask for a status update or continue waiting. Prefer patience over duplicate work.
+- If a subagent stalls across multiple waits, first nudge it or replace it with a fresh subagent for the same role. Preserve the round history and handoff context.
+- Let the coordinator take over a round only when subagent execution is impossible in the current session, and record that reason in the review history or blocker notes.
+- Never start the next step while any subagent still owns the current step.
 
 ## Enforce the minimum contract
 
