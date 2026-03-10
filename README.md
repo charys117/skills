@@ -13,10 +13,13 @@ npx skills@latest add <owner>/<repo> --list
 
 # Install one skill
 npx skills@latest add <owner>/<repo> --skill oracle
+npx skills@latest add <owner>/<repo> --skill step-orchestrator
 
 # Install all skills in this package
 npx skills@latest add <owner>/<repo>
 ```
+
+Current skills in this repo: `oracle`, `step-orchestrator`.
 
 ## Repository Layout
 
@@ -27,6 +30,10 @@ skills/
     agents/openai.yaml
     scripts/
     assets/
+  step-orchestrator/
+    SKILL.md
+    agents/openai.yaml
+    references/
 ```
 
 ## Skill Package Requirements
