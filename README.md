@@ -12,6 +12,7 @@ Replace `<owner>/<repo>` with this repository path on GitHub.
 npx skills@latest add <owner>/<repo> --list
 
 # Install one skill
+npx skills@latest add <owner>/<repo> --skill notion-board
 npx skills@latest add <owner>/<repo> --skill oracle
 npx skills@latest add <owner>/<repo> --skill step-orchestrator
 
@@ -19,12 +20,17 @@ npx skills@latest add <owner>/<repo> --skill step-orchestrator
 npx skills@latest add <owner>/<repo>
 ```
 
-Current skills in this repo: `oracle`, `step-orchestrator`.
+Current skills in this repo: `notion-board`, `oracle`, `step-orchestrator`.
 
 ## Repository Layout
 
 ```text
 skills/
+  notion-board/
+    SKILL.md
+    agents/openai.yaml
+    scripts/
+    references/
   oracle/
     SKILL.md
     agents/openai.yaml
