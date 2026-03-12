@@ -39,6 +39,7 @@ skills/
   step-orchestrator/
     SKILL.md
     agents/openai.yaml
+    scripts/
     references/
 ```
 
