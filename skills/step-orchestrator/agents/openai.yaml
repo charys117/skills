@@ -1,6 +1,6 @@
 interface:
   display_name: "Step Orchestrator"
-  short_description: "Run a multi-agent step workflow from a step table, commit each approved step, and write status back."
-  default_prompt: "Use the step-orchestrator skill with step source <source>, steps <range>, and workspace <path>. Run the implementer/reviewer loop until approval, use fresh subagents for each step, do not reuse or attach agents across step boundaries, commit each approved step, and write the result back to the step table."
+  short_description: "Run a multi-agent step workflow with step-scoped subagents, commit each approved step, and write status back."
+  default_prompt: "Use the step-orchestrator skill with step source <source>, steps <range>, and workspace <path>. Run the implementer/reviewer loop until approval, use fresh subagents for each step, never fork or reuse coordinator context into a subagent, pass only explicit step-local context and artifacts, commit each approved step, and write the result back to the step table."
 policy:
   allow_implicit_invocation: true

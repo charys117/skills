@@ -33,10 +33,10 @@ Coordinate one requested step at a time from a step table.
 - Handle one step at a time. Do not overlap steps.
 - For each step:
   1. Mark the step `In Progress`.
-  2. Spawn fresh implementer `A1` dedicated only to that step. Do not attach or reuse an implementer thread from any earlier step. Instruct it not to commit, tag, or update the step table.
+  2. Spawn fresh implementer `A1` dedicated only to that step. Do not attach or reuse an implementer thread from any earlier step. If the runtime exposes `fork_context`, set `fork_context=false`. Instruct it not to commit, tag, or update the step table.
   3. Wait for `A1` to finish and return a complete handoff for that step before doing any implementation work on the same step yourself.
   4. Mark the step `In Review`.
-  5. Spawn fresh reviewer `B1` dedicated only to that step. Do not attach or reuse a reviewer thread from any earlier step. Keep reviewer read-only.
+  5. Spawn fresh reviewer `B1` dedicated only to that step. Do not attach or reuse a reviewer thread from any earlier step. If the runtime exposes `fork_context`, set `fork_context=false`. Keep reviewer read-only.
   6. Wait for `B1` to return a final review result before doing any review work on the same step yourself.
   7. If reviewer `B1` rejects the work, append `B1` review history, set the step back to `In Progress`, and spawn implementer `A2` with the review notes.
   8. Continue `A<n> -> B<n>` rounds until the reviewer approves or a hard blocker prevents safe progress.
@@ -57,7 +57,7 @@ Coordinate one requested step at a time from a step table.
 - Treat each spawned `A<n>` or `B<n>` as the owner of that round until it finishes, reports a blocker, or is explicitly replaced.
 - Use long waits and sparse polling. A single timeout or slow response is not permission for the coordinator to take over the round.
 - If a subagent is slow, ask for a status update or continue waiting. Prefer patience over duplicate work.
-- If a subagent stalls across multiple waits, first nudge it or replace it with a fresh subagent for the same role and same step. Preserve the round history and handoff context.
+- If a subagent stalls across multiple waits, first nudge it or replace it with a fresh subagent for the same role and same step. Preserve the round history and handoff context as explicit notes, diffs, file paths, and test results rather than hidden thread state.
 - Let the coordinator take over a round only when subagent execution is impossible in the current session, and record that reason in the review history or blocker notes.
 - Never start the next step while any subagent still owns the current step.
 
@@ -67,6 +67,36 @@ Coordinate one requested step at a time from a step table.
 - Never attach a later step to a subagent from an earlier step. Reusing agent history across steps is a workflow bug because it leaks assumptions and review context.
 - Pass forward only explicit artifacts such as the step table state, written handoff notes, commits, and test results. Do not pass forward hidden thread state by reusing the same subagent.
 - If you need context from a prior step, summarize it in the new step prompt or writeback instead of reviving the earlier subagent.
+
+## Pass only step-local context to subagents
+
+- Never spawn a step subagent with the coordinator thread history attached. If the spawning tool supports `fork_context`, keep it `false`.
+- Build each subagent prompt from explicit step-local inputs only: step ID and title, the step body or acceptance criteria, relevant file paths, required test commands, the current round's reviewer notes, and any concrete approved artifacts from earlier steps that this step depends on.
+- Do not dump the full coordinator conversation, unrelated repository exploration, or future-step plans into the subagent prompt.
+- When a later step depends on an earlier one, pass a short dependency summary or concrete artifacts such as commit SHA, changed paths, interface notes, and test results.
+- Treat any leakage of coordinator thread state into a subagent as a workflow failure because it lets the subagent infer or preempt work outside the active step.
+
+## Shape subagent prompts narrowly
+
+```text
+Role: <implementer|reviewer> for step <id> only.
+Workspace: <path>.
+Active step:
+- title: <step title>
+- objective: <step body or goal>
+- acceptance criteria: <criteria>
+Relevant artifacts:
+- files or directories: <paths>
+- prior approved dependency notes: <only what this step needs>
+- current round review notes: <same-step notes only>
+Run tests: <commands>
+Rules:
+- work only on this step
+- do not infer or start later steps
+- do not use or request hidden coordinator thread context
+- implementer: do not commit or update the step table
+- reviewer: read-only, report findings and verdict only
+```
 
 ## Enforce the minimum contract
 
